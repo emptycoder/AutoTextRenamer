@@ -81,7 +81,6 @@ namespace FastKeyboardChanger.Utils
             { '^', ':' },
             { '&', '?' }
         };
-        private static StringBuilder stringBuilder = new StringBuilder();
 
         public static string EnToRu(string text)
         {
@@ -90,7 +89,7 @@ namespace FastKeyboardChanger.Utils
 
         private static string Mapper(string text, Dictionary<char, char> vocabulary)
         {
-            stringBuilder.Clear();
+            StringBuilder stringBuilder = new StringBuilder(text.Length);
             foreach (char character in text)
             {
                 if (vocabulary.TryGetValue(character, out char value))
@@ -102,7 +101,6 @@ namespace FastKeyboardChanger.Utils
                     stringBuilder.Append(character);
                 }
             }
-
             return stringBuilder.ToString();
         }
     }
