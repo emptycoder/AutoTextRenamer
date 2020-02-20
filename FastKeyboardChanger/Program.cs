@@ -7,17 +7,18 @@ namespace FastKeyboardChanger
     static class Program
     {
         private static bool ctrlTapped = false;
-        static KeyHook keyHook = new KeyHook();
+        private static KeyHook keyHook = new KeyHook();
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             keyHook.KeyDownHandler += KeyHook_KeyDownHandler;
             keyHook.KeyUpHandler += KeyHook_KeyUpHandler;
             Application.Run();
+            keyHook.Dispose();
         }
 
         private static bool KeyHook_KeyUpHandler(Keys key)
@@ -46,7 +47,7 @@ namespace FastKeyboardChanger
                 {
                     string clipboardText = Clipboard.GetText(TextDataFormat.UnicodeText);
                     Clipboard.SetText(Mapping.EnToRu(clipboardText));
-                    keyHook.SendWait("^{v}");
+                    keyHook.SendKeysWait("^{v}");
                 }
                 return true;
             }

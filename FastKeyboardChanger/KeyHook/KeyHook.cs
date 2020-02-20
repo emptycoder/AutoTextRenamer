@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace FastKeyboardChanger
 {
-    public class KeyHook : IDisposable
+    public partial class KeyHook : IKeyHook, IDisposable
     {
         public bool isKeyHookActive { get; private set; } = true;
         private const int WH_KEYBOARD_LL = 13;
@@ -15,9 +15,10 @@ namespace FastKeyboardChanger
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
         private Type keysType = typeof(Keys);
 
-        public delegate bool KeyHandler(Keys key);
         static readonly object mouseDownEventKey = new object();
         static readonly object mouseUpEventKey = new object();
+        private EventHandlerList listEventDelegates = new EventHandlerList();
+        private Dictionary<IntPtr, object> events = new Dictionary<IntPtr, object>();
         public event KeyHandler KeyUpHandler
         {
             add
@@ -40,8 +41,6 @@ namespace FastKeyboardChanger
                 listEventDelegates.RemoveHandler(mouseUpEventKey, value);
             }
         }
-        public EventHandlerList listEventDelegates = new EventHandlerList();
-        private Dictionary<IntPtr, object> events = new Dictionary<IntPtr, object>();
 
         public KeyHook()
         {
@@ -74,7 +73,7 @@ namespace FastKeyboardChanger
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
-        public void SendWait(string keys)
+        public void SendKeysWait(string keys)
         {
             isKeyHookActive = false;
             SendKeys.SendWait(keys);
@@ -85,19 +84,5 @@ namespace FastKeyboardChanger
         {
             UnhookWinEvent(_hookID);
         }
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
-            IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook,
-            LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
-
-        [DllImport("user32.dll")]
-        public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
     }
 }
